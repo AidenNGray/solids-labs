@@ -28,3 +28,4 @@ deltaStrain = aidenData.Strain1(point2) - aidenData.Strain1(point1);
 youngs = deltaStress / deltaStrain;
 
 uts = max(stress);
+
