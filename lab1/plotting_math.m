@@ -2,6 +2,7 @@ load("aidenData.mat","aidenData")
 
 width_init = 12.61; %mm
 depth_init = 3.08; %mm
+len_init = 80.5; %mm
 width_fin = 9.39; %mm
 depth_fin = 1.99; %mm
 
@@ -16,11 +17,15 @@ standardSSplot(aidenData.Strain1, stress);
 
 %% Calculations
 % Young's modulus
-point1 = find(aidenData.Strain1 > .1, 1);
+point1 = find(aidenData.Strain1 > .175, 1);
 point2 = find(aidenData.Strain1 > .25, 1);
 deltaStress = stress(point2) - stress(point1);
 deltaStrain = aidenData.Strain1(point2) - aidenData.Strain1(point1);
-youngs = deltaStress / deltaStrain;
+youngs = deltaStress / (deltaStrain / 100);
+
+bottom1 = [aidenData.Strain1(point1) stress(point1)];
+bottom2 = [aidenData.Strain1(point2) stress(point1)];
+top = [aidenData.Strain1(point2) stress(point2)];
 
 % UTS
 utsIndex = find(stress == max(stress));
@@ -28,10 +33,10 @@ utsStrain = aidenData.Strain1(utsIndex);
 utsStress = stress(utsIndex);
 
 % Yield stress: .2% method
-xValues = linspace(.2,.4,100);
-yValues = youngs * (xValues-.2);
+xValues = linspace(.2,.55,100);
+yValues = (youngs/100) * (xValues-.2);
 
-yieldStrain = .38; % Estimated from plot
+yieldStrain = .497; % Estimated from plot
 yieldIndex = find(aidenData.Strain1 >= yieldStrain, 1);
 yieldStress = stress(yieldIndex);
 
@@ -41,6 +46,11 @@ failIndex = find(deltas <= -6,1); % Bound set by trial and error
 failStrain = aidenData.Strain1(failIndex);
 failStress = stress(failIndex);
 
+% Percent Area Reduction
+aReduction = (area_fin - area_init) / area_init * 100;
+
+% Percent elongation
+lReduction = aidenData.Displacement(end) / len_init * 100;
 %% Annotated plotting: entire plot
 
 figure;
@@ -91,6 +101,15 @@ yieldMark.Marker = 'o';
 yieldMark.MarkerFaceColor = 'green';
 yieldMark.MarkerEdgeColor = 'black';
 yieldMark.DisplayName = '$\sigma_{yield}$';
+
+% Plotting youngs modulus
+e = plot([bottom1(1) bottom2(1) top(1)], ...
+    [bottom1(2) bottom2(2) top(2)]);
+e.DisplayName = "Young's Modulus Estimation";
+
+txt = sprintf('E = %.1f GPa \\rightarrow ',youngs/1000);
+text((bottom1(1)+bottom2(1))/2,(bottom2(2)+top(2))/2, ...
+    txt,'HorizontalAlignment','right')
 
 title('Elastic Region of Stress-Strain Plot for Sample 17')
 xlim([0 .75])
