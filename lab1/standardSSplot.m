@@ -5,5 +5,5 @@ xlabel('Strain (%)')
 title('Annotated Stress-Strain Plot for Sample 17')
 
 p.LineWidth = 1.5;
-p.Color = 'blue';
+%p.Color = 'blue';
 end

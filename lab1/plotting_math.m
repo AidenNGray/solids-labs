@@ -51,6 +51,15 @@ aReduction = (area_fin - area_init) / area_init * 100;
 
 % Percent elongation
 lReduction = aidenData.Displacement(end) / len_init * 100;
+
+% Modulus of resilience
+mResilience = yieldStress^2 / (2 * youngs);
+
+% Toughness
+dStrain = diff(aidenData.Strain1);
+integrand = stress(2:end) .* (dStrain/100);
+toughness = sum(integrand); % Riemann sum estimation
+
 %% Annotated plotting: entire plot
 
 figure;
